@@ -19,4 +19,14 @@ host('london')
 
 // Hooks
 
+task('npm:build', function () {
+    run('cd {{release_path}} && npm install && npm run build');
+})->desc('Compile assets');
+
+task('artisan:filament-optimize', function () {
+    run('cd {{release_path}} && php artisan filament:optimize');
+})->desc('Optimize Filament');
+
+after('deploy:vendors', 'npm:build');
+after('deploy:symlink', 'artisan:filament-optimize');
 after('deploy:failed', 'deploy:unlock');
