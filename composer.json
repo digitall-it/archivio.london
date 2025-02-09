@@ -7,13 +7,18 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "endroid/qr-code": "^6.0",
         "filament/filament": "^3.2",
         "laravel/framework": "^11.31",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.4",
-        "livewire/volt": "^1.0"
+        "livewire/volt": "^1.0",
+        "mpdf/mpdf": "^8.2",
+        "spatie/laravel-data": "^4.13",
+        "ext-curl": "*"
     },
     "require-dev": {
+        "roave/security-advisories": "dev-latest",
         "deployer/deployer": "^7.5",
         "fakerphp/faker": "^1.23",
         "laravel/breeze": "^2.3",
