@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5447f85f5c263a8a06718ddd2a84c380",
+    "content-hash": "c231dfb8f8e2c360ccfc6fcd5267ca81",
     "packages": [
         {
             "name": "amphp/amp",
@@ -4145,6 +4145,52 @@
                 }
             ],
             "time": "2024-12-08T08:18:47+00:00"
+        },
+        {
+            "name": "lepiaf/serialport",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lepiaf/serialport.git",
+                "reference": "17e9ff0fb2f373986a22918a995699b9fe688ba7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lepiaf/serialport/zipball/17e9ff0fb2f373986a22918a995699b9fe688ba7",
+                "reference": "17e9ff0fb2f373986a22918a995699b9fe688ba7",
+                "shasum": ""
+            },
+            "require-dev": {
+                "php-mock/php-mock-phpunit": "^2.6",
+                "phpunit/phpunit": "^9.4"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "lepiaf\\SerialPort\\": "src/lepiaf/SerialPort"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Thierry Thuon",
+                    "email": "lepiaf@users.noreply.github.com"
+                }
+            ],
+            "description": "Serial port access convenience class",
+            "support": {
+                "issues": "https://github.com/lepiaf/serialport/issues",
+                "source": "https://github.com/lepiaf/serialport/tree/v1.1.0"
+            },
+            "time": "2020-10-31T02:46:36+00:00"
         },
         {
             "name": "livewire/livewire",

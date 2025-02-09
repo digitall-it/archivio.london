@@ -39,20 +39,30 @@ class LabelPrinterService
                 'id' => $container->id,
             ];
 
+            $transport = $this->config->get('printers.label.transport', 'log');
+            $printerName = $this->config->get('printers.label.name', 'Brother_Label_Printer');
+
             // Crea il file PDF direttamente dal layout
+            if ($transport === 'log') {
+                $timestamp = date('Ymd_His');
+                $tempPdfPath = $_SERVER['HOME'] . "/Desktop/label_{$container->id}_{$timestamp}.pdf";
+            } else {
             $tempPdfPath = tempnam(sys_get_temp_dir(), 'label_').'.pdf';
+            }
             $layout = new ContainerLoadLabelLayout;
             $layout->generatePdf($layoutData, $tempPdfPath);
 
             // Controlla il metodo di trasporto
-            $transport = $this->config->get('printers.label.transport', 'log');
-            $printerName = $this->config->get('printers.label.name', 'Brother_Label_Printer');
+
+
 
             switch ($transport) {
                 case 'log':
-                    Log::info('Label PDF generated at: '.realpath($tempPdfPath));
+                    // $tempPdfPath is the path to the desktop, so we can open it manually.
 
-                    return true;
+                    Log::info('Label PDF generated at: '.realpath($tempPdfPath));
+                    $success = true;
+                    break;
 
                 case 'exec':
                     // Use the lp command to print the PDF.
@@ -84,7 +94,7 @@ class LabelPrinterService
                     throw new LabelPrinterException('Invalid printer transport method configured');
             }
 
-            return true;
+            return $success;
         } catch (Exception $e) {
             Log::error('Label print error: '.$e->getMessage());
 
