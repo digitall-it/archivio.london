@@ -19,15 +19,16 @@ class EndroidQRCodeGenerator implements QRCodeGeneratorInterface
     /**
      * Generate a QR code image in base64 data URI format.
      *
-     * @param string $content The content to encode.
-     * @param int $size The size (in pixels) for the QR code.
+     * @param  string  $content  The content to encode.
+     * @param  int  $size  The size (in pixels) for the QR code.
      * @return string The QR code as a base64 encoded PNG image.
+     *
      * @throws ValidationException
      */
     public function generateQRCode(string $content, int $size): string
     {
         $builder = new Builder(
-            writer: new PngWriter(),
+            writer: new PngWriter,
             writerOptions: [],
             validateResult: false,
             data: $content,

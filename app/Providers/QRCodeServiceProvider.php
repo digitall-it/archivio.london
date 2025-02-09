@@ -13,7 +13,7 @@ class QRCodeServiceProvider extends ServiceProvider
         $this->app->bind(QRCodeGeneratorInterface::class, EndroidQRCodeGenerator::class);
     }
 
-//    public function boot(): void
-//    {
-//    }
+    //    public function boot(): void
+    //    {
+    //    }
 }

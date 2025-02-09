@@ -23,12 +23,12 @@ class ContainerQrEvent
     /**
      * Create a new event instance.
      *
-     * @param int    $containerId The container ID.
-     * @param string $mode        The mode.
+     * @param  int  $containerId  The container ID.
+     * @param  string  $mode  The mode.
      */
     public function __construct(int $containerId, string $mode)
     {
         $this->containerId = $containerId;
-        $this->mode        = $mode;
+        $this->mode = $mode;
     }
 }

@@ -5,16 +5,16 @@ namespace App\Layouts;
 /**
  * Interface LabelLayoutInterface
  *
- * Provides an interface for generating HTML layouts for label printing.
+ * Provides a method for generating HTML layouts for label printing
+ * and creating a PDF from them.
  */
 interface LabelLayoutInterface
 {
     /**
-     * Render the label layout as HTML.
+     * Generate the label PDF and save it to the specified file.
      *
-     * @param array $data An array containing the data required for the layout.
-     *                    Expected keys: 'containerName', 'mode', 'qrCodeImage'.
-     * @return string The HTML string for the label.
+     * @param  array  $data  The layout data.
+     * @param  string  $filePath  The absolute path where the PDF should be saved.
      */
-    public function render(array $data): string;
+    public function generatePdf(array $data, string $filePath): void;
 }

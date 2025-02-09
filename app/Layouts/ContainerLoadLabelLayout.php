@@ -2,6 +2,13 @@
 
 namespace App\Layouts;
 
+use Illuminate\Support\Facades\View;
+use Mpdf\Config\ConfigVariables;
+use Mpdf\Config\FontVariables;
+use Mpdf\Mpdf;
+use Mpdf\MpdfException;
+use Mpdf\Output\Destination;
+
 /**
  * Class ContainerLoadLabelLayout
  *
@@ -9,71 +16,53 @@ namespace App\Layouts;
  */
 class ContainerLoadLabelLayout implements LabelLayoutInterface
 {
-    // Paper dimensions in millimeters.
-    public const PAPER_WIDTH  = 29;
+    // Paper dimensions in millimeters
+    public const PAPER_WIDTH = 29;
+
     public const PAPER_HEIGHT = 90;
 
     /**
-     * Render the container load label as HTML.
+     * Generate the label PDF and save it to the specified file.
      *
-     * @param array $data Expected keys: 'containerName', 'mode', 'qrCodeImage'
-     * @return string The HTML content for the PDF.
+     * @param  array  $data  The layout data.
+     * @param  string  $filePath  The absolute path where the PDF should be saved.
+     *
+     * @throws MpdfException
      */
-    public function render(array $data): string
+    public function generatePdf(array $data, string $filePath): void
     {
-        $containerName = $data['containerName'] ?? '';
-        $mode          = $data['mode'] ?? '';
-        $qrCodeImage   = $data['qrCodeImage'] ?? '';
+        // Percorso della cartella font
+        $fontDir = resource_path('fonts');
 
-        // The layout uses inline styles. The QR code is placed at the top,
-        // and the container name and mode (e.g., "carico" or "scarico") are
-        // shown at the bottom, rotated for vertical appearance.
-        $html = '
-        <html>
-        <head>
-            <style>
-                body {
-                    margin: 0;
-                    padding: 0;
-                    font-family: sans-serif;
-                }
-                .label-container {
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-between;
-                    text-align: center;
-                }
-                .qr-code {
-                    flex: 1;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }
-                .label-text {
-                    flex: 0 0 auto;
-                    /* Rotate text 90 degrees for vertical display */
-                    transform: rotate(90deg);
-                    transform-origin: center;
-                    font-size: 12px;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="label-container">
-                <div class="qr-code">
-                    <img src="' . $qrCodeImage . '" alt="QR Code" style="max-width:100%; max-height:100%;">
-                </div>
-                <div class="label-text">
-                    <div>' . htmlspecialchars($containerName) . '</div>
-                    <div>' . htmlspecialchars($mode) . '</div>
-                </div>
-            </div>
-        </body>
-        </html>
-        ';
+        // Configura mPDF con il supporto per i font personalizzati
+        $defaultConfig = (new ConfigVariables)->getDefaults();
+        $fontDirs = array_merge($defaultConfig['fontDir'], [$fontDir]);
 
-        return $html;
+        $defaultFontConfig = (new FontVariables)->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'] + [
+            'dosis' => [
+                'R' => 'Dosis-VariableFont_wght.ttf',
+            ],
+        ];
+
+        // Creiamo il PDF con margini a 0 e impostiamo il font custom
+        $mpdf = new Mpdf([
+            'format' => [self::PAPER_WIDTH, self::PAPER_HEIGHT],
+            'margin_top' => 0,
+            'margin_bottom' => 0,
+            'margin_left' => 0,
+            'margin_right' => 0,
+            'fontDir' => $fontDirs,
+            'fontdata' => $fontData,
+            'default_font' => 'dosis',
+        ]);
+        // $mpdf->AddPage('L'); // Set landscape mode
+
+        // Renderizza il template Laravel
+        $html = View::make('pdf.container_label', $data)->render();
+        $mpdf->WriteHTML($html);
+
+        // Salva il PDF nel percorso specificato
+        $mpdf->Output($filePath, Destination::FILE);
     }
 }

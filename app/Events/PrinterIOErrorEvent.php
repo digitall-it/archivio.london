@@ -2,9 +2,9 @@
 
 namespace App\Events;
 
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Foundation\Events\Dispatchable;
 
 class PrinterIOErrorEvent implements ShouldBroadcast
 {
@@ -19,8 +19,6 @@ class PrinterIOErrorEvent implements ShouldBroadcast
 
     /**
      * Get the channels the event should broadcast on.
-     *
-     * @return array
      */
     public function broadcastOn(): array
     {
@@ -29,8 +27,6 @@ class PrinterIOErrorEvent implements ShouldBroadcast
 
     /**
      * Get the data to broadcast.
-     *
-     * @return array
      */
     public function broadcastWith(): array
     {

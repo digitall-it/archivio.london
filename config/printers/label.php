@@ -12,6 +12,7 @@ return [
     |
     */
 
-    'name'      => env('LABEL_PRINTER_NAME', 'Brother_Label_Printer'),
+    'name' => env('LABEL_PRINTER_NAME', 'Brother_Label_Printer'),
     'transport' => env('LABEL_PRINTER_TRANSPORT', 'exec'),
+    'dry_run' => env('LABEL_PRINTER_DRY_RUN', false),
 ];
