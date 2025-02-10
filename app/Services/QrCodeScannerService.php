@@ -57,14 +57,13 @@ class QrCodeScannerService
                 try {
                     $data = $serialPort->read();
                 } catch (Exception $e) {
-                    $this->logMessage('error', "Timeout: No data received in {$this->readTimeout} seconds.");
-                    break; // Esce dal loop se il timeout viene superato
+                    $this->logMessage('error', 'Error reading from serial port: '.$e->getMessage());
+                    break;
                 }
 
-                if ($data === '') {
-                    $this->logMessage('debug', 'No data received from serial port.');
-
-                    continue;
+                if ($data === false) {
+                    $this->logMessage('debug', 'Graceful exit from managed serial port read loop.');
+                    break;
                 }
 
                 $qrCode = trim($data);

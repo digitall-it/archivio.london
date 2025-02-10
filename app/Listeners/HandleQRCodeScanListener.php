@@ -10,7 +10,7 @@ class HandleQRCodeScanListener implements ShouldQueue
 {
     use \Illuminate\Queue\InteractsWithQueue;
 
-    public function __construct() {}
+    // public function __construct() {}
 
     public function handle(QrCodeScannedEvent $event): void
     {
