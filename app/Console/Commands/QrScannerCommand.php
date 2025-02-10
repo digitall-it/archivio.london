@@ -22,7 +22,12 @@ class QrScannerCommand extends Command
 
         try {
             $scanner = new QrCodeScannerService($port, $maxTime, $readDelay, $readTimeout, function ($level, $message) {
-                $this->{$level}($message);
+                match ($level) {
+                    'info' => $this->info($message),
+                    'warning' => $this->warn($message),
+                    'error' => $this->error($message),
+                    default => $this->line($message),
+                };
             });
             $scanner->start();
         } catch (Exception $e) {
