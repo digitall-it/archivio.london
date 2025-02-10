@@ -24,10 +24,17 @@ task('npm:build', function () {
     run('cd {{release_path}} && npm install && npm run build');
 })->desc('Compile assets');
 
-task('artisan:filament-optimize', function () {
-    run('cd {{release_path}} && php artisan filament:optimize');
-})->desc('Optimize Filament');
+task('artisan:queue:restart', function () {
+    run('cd {{release_path}} && php artisan queue:restart');
+})->desc('Restart Laravel Queue Workers');
 
-after('deploy:vendors', 'npm:build');
-after('deploy:symlink', 'artisan:filament-optimize');
+task('supervisor:restart-qrscanner', function () {
+    run('sudo supervisorctl restart archivio-london-qrscanner');
+})->desc('Restart the QR Scanner daemon in Supervisor');
+
 after('deploy:failed', 'deploy:unlock');
+
+after('deploy:vendors', 'artisan:optimize');
+after('deploy:vendors', 'npm:build');
+after('deploy:publish', 'artisan:queue:restart');
+after('deploy:publish', 'supervisor:restart-qrscanner');
