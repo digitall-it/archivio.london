@@ -6,8 +6,9 @@ use App\Events\QrCodeScannedEvent;
 use App\Exceptions\SerialIOException;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use Lepiaf\SerialPort\SerialPort;
-use Lepiaf\SerialPort\Parser\SeparatorParser;
+use lepiaf\SerialPort\SerialPort;
+use lepiaf\SerialPort\Parser\SeparatorParser;
+use lepiaf\SerialPort\Configure\TTYConfigure;
 
 class QrCodeScannerService
 {
@@ -29,20 +30,18 @@ class QrCodeScannerService
     public function start(): void
     {
         try {
-            // Initialize serial communication with SeparatorParser for CRLF
-            $this->serial = new SerialPort(new SeparatorParser("\r\n"));
-            $this->serial->open($this->port, 'r'); // Open in read-only mode
+            $serialPort = new SerialPort(new SeparatorParser(), new TTYConfigure());
+            $serialPort->open($this->port, 'r');
 
             $startTime = time();
 
-            while ((time() - $startTime) < $this->maxTime) {
-                $qrCode = $this->serial->read();
+            while (
+                ((time() - $startTime) < $this->maxTime) && $data = $serialPort->read()) {
 
-                if (is_string($qrCode) && $qrCode !== '') {
-                    Log::info("QR Code scanned: " . trim($qrCode));
-                    event(new QrCodeScannedEvent(trim($qrCode)));
+                if (is_string($data) && $data !== '') {
+                    Log::info("QR Code scanned: " . trim($data));
+                    event(new QrCodeScannedEvent(trim($data)));
                 }
-
                 usleep($this->sleepTime); // Delay to reduce CPU load
             }
 
