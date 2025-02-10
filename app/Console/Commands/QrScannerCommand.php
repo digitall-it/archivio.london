@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class QrScannerCommand extends Command
 {
-    protected $signature = 'qrscanner {port} {--max-time=3600} {--read-delay=50000} {--read-timeout=60}';
+    protected $signature = 'qrscanner {port} {--max-time=3600} {--read-delay=50000} {--read-timeout=600}';
 
     protected $description = 'Start the QR Code scanner daemon on a serial USB port';
 
