@@ -8,9 +8,12 @@
     "require": {
         "php": "^8.2",
         "ext-curl": "*",
+        "bezhansalleh/filament-shield": "^3.3",
         "endroid/qr-code": "^6.0",
         "filament/filament": "^3.2",
+        "filament/spatie-laravel-settings-plugin": "^3.2",
         "laravel/framework": "^11.31",
+        "laravel/telescope": "^5.4",
         "laravel/tinker": "^2.9",
         "lepiaf/serialport": "^1.1",
         "livewire/livewire": "^3.4",

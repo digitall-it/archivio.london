@@ -14,11 +14,13 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // create the user Giancarlo Di Massa with email giancarlo@digitall.it and password e2p0s0o1n, no faker factory
-        User::create([
+        $giancarlo = User::create([
             'name' => 'Giancarlo Di Massa',
             'email' => 'giancarlo@digitall.it',
             'password' => Hash::make('e2p0s0o1n'),
         ]);
 
+        //$giancarlo->givePermissionTo(['access filament', 'access telescope']);
+        $giancarlo->assignRole('Panel Admin');
     }
 }

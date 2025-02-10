@@ -10,6 +10,6 @@ class LabelPrintRequestedEvent
     use Dispatchable, SerializesModels;
 
     public function __construct(
-        public array $data,    // Dati da stampare
+        public array $data,
     ) {}
 }
