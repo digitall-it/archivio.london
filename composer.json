@@ -9,6 +9,7 @@
         "php": "^8.2",
         "ext-curl": "*",
         "bezhansalleh/filament-shield": "^3.3",
+        "blade-ui-kit/blade-heroicons": "^2.5",
         "endroid/qr-code": "^6.0",
         "filament/filament": "^3.2",
         "filament/spatie-laravel-settings-plugin": "^3.2",
