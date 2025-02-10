@@ -20,7 +20,7 @@ class QrCodeScannedNotification extends Notification implements ShouldQueue
 
     public function via($notifiable): array
     {
-        return ['database'];
+        return ['database', 'filamentDatabase'];
     }
 
     public function toDatabase($notifiable): array
