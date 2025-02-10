@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class QrScannerCommand extends Command
 {
-    protected $signature = 'qrscanner {port} {--max-time=360} {--sleep=750}';
+    protected $signature = 'qrscanner {port} {--max-time=3600} {--read-delay=50000} {--read-timeout=60}';
 
     protected $description = 'Start the QR Code scanner daemon on a serial USB port';
 
@@ -17,16 +17,12 @@ class QrScannerCommand extends Command
     {
         $port = $this->argument('port');
         $maxTime = (int) $this->option('max-time');
-        $sleepTime = (int) $this->option('sleep');
+        $readDelay = (int) $this->option('read-delay');
+        $readTimeout = (int) $this->option('read-timeout');
 
         try {
-            $scanner = new QrCodeScannerService($port, $maxTime, $sleepTime, function ($level, $message) {
-                match ($level) {
-                    'info' => $this->info($message),
-                    'warning' => $this->warn($message),
-                    'error' => $this->error($message),
-                    default => $this->line($message),
-                };
+            $scanner = new QrCodeScannerService($port, $maxTime, $readDelay, $readTimeout, function ($level, $message) {
+                $this->{$level}($message);
             });
             $scanner->start();
         } catch (Exception $e) {

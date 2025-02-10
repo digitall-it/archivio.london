@@ -4,31 +4,35 @@ namespace App\Services;
 
 use App\Events\QrCodeScannedEvent;
 use App\Exceptions\SerialIOException;
+use App\Serial\ManagedSerialPort;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use lepiaf\SerialPort\Configure\TTYConfigure;
 use lepiaf\SerialPort\Parser\SeparatorParser;
-use lepiaf\SerialPort\SerialPort;
 
 class QrCodeScannerService
 {
     protected string $port;
 
-    protected int $maxTime;
+    protected int $maxTime; // TTL in seconds
 
-    protected int $sleepTime;
+    protected int $readDelay; // Sleep time in microseconds
+
+    protected int $readTimeout; // Timeout in seconds
 
     protected $logCallback;
 
     public function __construct(
         string $port,
-        int $maxTime = 360,
-        int $sleepTime = 750,
+        int $maxTime = 3600, // 1 hour TTL
+        int $readDelay = 50000, // 50ms sleep
+        int $readTimeout = 10, // 10s max wait time for data
         ?callable $logCallback = null
     ) {
         $this->port = $port;
         $this->maxTime = $maxTime;
-        $this->sleepTime = $sleepTime * 1000; // Convert milliseconds to microseconds
+        $this->readDelay = $readDelay;
+        $this->readTimeout = $readTimeout;
         $this->logCallback = $logCallback;
     }
 
@@ -40,7 +44,8 @@ class QrCodeScannerService
         try {
             $this->logMessage('info', "Attempting to open serial port: $this->port");
 
-            $serialPort = new SerialPort(new SeparatorParser("\r"), new TTYConfigure);
+            // Passiamo readTimeout e readDelay
+            $serialPort = new ManagedSerialPort(new SeparatorParser("\r"), new TTYConfigure, $this->readDelay, $this->readTimeout);
             $serialPort->open($this->port, 'r');
 
             $this->logMessage('info', "Serial port opened successfully: $this->port");
@@ -49,11 +54,15 @@ class QrCodeScannerService
             $this->logMessage('info', 'Entering QR code read loop...');
 
             while ((time() - $startTime) < $this->maxTime) {
-                $data = $serialPort->read();
+                try {
+                    $data = $serialPort->read();
+                } catch (Exception $e) {
+                    $this->logMessage('error', "Timeout: No data received in {$this->readTimeout} seconds.");
+                    break; // Esce dal loop se il timeout viene superato
+                }
 
                 if ($data === '') {
                     $this->logMessage('debug', 'No data received from serial port.');
-                    usleep($this->sleepTime);
 
                     continue;
                 }
@@ -63,7 +72,6 @@ class QrCodeScannerService
                 event(new QrCodeScannedEvent($qrCode));
 
                 $this->logMessage('debug', 'Waiting for next QR code scan...');
-                usleep($this->sleepTime); // Delay to reduce CPU load
             }
 
             $this->logMessage('info', "Closing serial port: $this->port");
