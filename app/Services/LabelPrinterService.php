@@ -45,16 +45,14 @@ class LabelPrinterService
             // Crea il file PDF direttamente dal layout
             if ($transport === 'log') {
                 $timestamp = date('Ymd_His');
-                $tempPdfPath = $_SERVER['HOME'] . "/Desktop/label_{$container->id}_{$timestamp}.pdf";
+                $tempPdfPath = $_SERVER['HOME']."/Desktop/label_{$container->id}_{$timestamp}.pdf";
             } else {
-            $tempPdfPath = tempnam(sys_get_temp_dir(), 'label_').'.pdf';
+                $tempPdfPath = tempnam(sys_get_temp_dir(), 'label_').'.pdf';
             }
             $layout = new ContainerLoadLabelLayout;
             $layout->generatePdf($layoutData, $tempPdfPath);
 
             // Controlla il metodo di trasporto
-
-
 
             switch ($transport) {
                 case 'log':

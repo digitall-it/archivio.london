@@ -2,8 +2,8 @@
 
 namespace App\Events;
 
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 
 class QrCodeScannedEvent implements ShouldQueue

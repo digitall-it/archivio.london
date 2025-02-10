@@ -4,6 +4,4 @@ namespace App\Exceptions;
 
 use Exception;
 
-class SerialIOException extends Exception
-{
-}
+class SerialIOException extends Exception {}

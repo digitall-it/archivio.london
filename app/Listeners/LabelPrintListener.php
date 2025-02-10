@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\Log;
 class LabelPrintListener implements ShouldQueue
 {
     use InteractsWithQueue;
-    public function __construct(protected LabelPrinterService $labelPrinterService) {}
 
+    public function __construct(protected LabelPrinterService $labelPrinterService) {}
 
     public function handle(LabelPrintRequestedEvent $event): void
     {
@@ -29,7 +29,7 @@ class LabelPrintListener implements ShouldQueue
                 Log::warning("Unknown label type: {$event->data['type']}");
             }
         } catch (\Exception $e) {
-            Log::error("Label printing failed: " . $e->getMessage());
+            Log::error('Label printing failed: '.$e->getMessage());
         }
     }
 }

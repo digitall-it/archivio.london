@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 class QrScannerCommand extends Command
 {
     protected $signature = 'qrscanner {port} {--max-time=360} {--sleep=750}';
+
     protected $description = 'Start the QR Code scanner daemon on a serial USB port';
 
     public function handle(): void
@@ -29,7 +30,7 @@ class QrScannerCommand extends Command
             });
             $scanner->start();
         } catch (Exception $e) {
-            Log::error("Error in QR Scanner: " . $e->getMessage());
+            Log::error('Error in QR Scanner: '.$e->getMessage());
             $this->error($e->getMessage());
         }
     }

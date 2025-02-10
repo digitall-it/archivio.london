@@ -4,6 +4,4 @@ namespace App\Exceptions;
 
 use Exception;
 
-class SerialConnectionException extends Exception
-{
-}
+class SerialConnectionException extends Exception {}
