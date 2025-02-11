@@ -38,7 +38,7 @@ class QrCodeScannedNotification extends Notification implements ShouldQueue
     {
         return FilamentNotification::make()
             ->title('QR Code Scansionato')
-            ->message("È stato scansionato un nuovo QR Code: {$this->qrCode}")
+            ->body("È stato scansionato un nuovo QR Code: {$this->qrCode}")
             ->icon('heroicon-o-qr-code')
             ->getBroadcastMessage();
     }
