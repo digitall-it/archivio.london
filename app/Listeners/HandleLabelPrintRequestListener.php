@@ -3,22 +3,32 @@
 namespace App\Listeners;
 
 use App\Events\LabelPrintRequestedEvent;
+use App\Models\Article;
 use App\Models\ArticleContainer;
 use App\Services\LabelPrinterService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 
-class LabelPrintListener implements ShouldQueue
+class HandleLabelPrintRequestListener implements ShouldQueue
 {
     use InteractsWithQueue;
 
-    public function __construct(protected LabelPrinterService $labelPrinterService) {}
+    public function __construct(protected LabelPrinterService $labelPrinterService)
+    {
+    }
 
     public function handle(LabelPrintRequestedEvent $event): void
     {
         try {
-            if ($event->data['type'] === 'container') {
+            if ($event->data['type'] === 'article') {
+                $article = Article::find($event->data['id']);
+                if ($article) {
+                    $this->labelPrinterService->printArticleLabel($article);
+                } else {
+                    Log::error("Article ID {$event->data['id']} not found.");
+                }
+            } elseif ($event->data['type'] === 'container') {
                 $container = ArticleContainer::find($event->data['id']);
                 if ($container) {
                     $this->labelPrinterService->printContainerLabel($container, $event->data['mode']);
@@ -29,7 +39,7 @@ class LabelPrintListener implements ShouldQueue
                 Log::warning("Unknown label type: {$event->data['type']}");
             }
         } catch (\Exception $e) {
-            Log::error('Label printing failed: '.$e->getMessage());
+            Log::error('Label printing failed: ' . $e->getMessage());
         }
     }
 }
