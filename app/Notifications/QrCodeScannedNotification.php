@@ -29,7 +29,7 @@ class QrCodeScannedNotification extends Notification implements ShouldQueue
             ->title('QR Code Scansionato')
             ->body("È stato scansionato un nuovo QR Code: {$this->qrCode}")
             ->success()
-            ->icon('heroicon-o-qrcode')
+            ->icon('heroicon-o-qr-code')
             ->getDatabaseMessage();
     }
 

@@ -15,6 +15,7 @@
         "filament/spatie-laravel-settings-plugin": "^3.2",
         "jeffgreco13/filament-breezy": "^2.5",
         "laravel/framework": "^11.31",
+        "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.0",
         "laravel/telescope": "^5.4",
         "laravel/tinker": "^2.9",
