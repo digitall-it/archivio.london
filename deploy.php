@@ -32,9 +32,14 @@ task('supervisor:restart-qrscanner', function () {
     run('sudo supervisorctl restart archivio-london-qrscanner');
 })->desc('Restart the QR Scanner daemon in Supervisor');
 
+task('supervisor:restart-reverb', function () {
+    run('sudo supervisorctl restart archivio-london-reverb');
+})->desc('Restart the Laravel Reverb daemon in Supervisor');
+
 after('deploy:failed', 'deploy:unlock');
 
 after('deploy:vendors', 'artisan:optimize');
 after('deploy:vendors', 'npm:build');
 after('deploy:publish', 'artisan:queue:restart');
+after('deploy:publish', 'supervisor:restart-reverb');
 after('deploy:publish', 'supervisor:restart-qrscanner');
