@@ -32,6 +32,7 @@ class QrCodeScannedNotification extends Notification implements ShouldQueue
             ->body("È stato scansionato un nuovo QR Code: $this->qrCode")
             ->success()
             ->icon('heroicon-o-qr-code')
+            ->iconColor('success')
             ->getDatabaseMessage();
     }
 
@@ -40,7 +41,10 @@ class QrCodeScannedNotification extends Notification implements ShouldQueue
         return FilamentNotification::make()
             ->title('QR Code Scansionato')
             ->body("È stato scansionato un nuovo QR Code: $this->qrCode")
+            ->success()
+            ->persistent()
             ->icon('heroicon-o-qr-code')
+            ->iconColor('success')
             ->getBroadcastMessage();
     }
 
