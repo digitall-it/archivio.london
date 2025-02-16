@@ -13,46 +13,65 @@ use Symfony\Component\Process\Process;
 class VoiceChannel
 {
     /**
-     * Invia la notifica.
+     * Sends the notification as a voice message.
      *
-     * @throws VoiceMethodNotDefinedException|VoiceFileNotCreatedException
+     * @param mixed $notifiable
+     * @param Notification $notification
+     * @return void
+     * @throws VoiceMethodNotDefinedException
+     * @throws VoiceFileNotCreatedException
      */
     public function send(mixed $notifiable, Notification $notification): void
     {
-        if (! method_exists($notification, 'toVoice')) {
-            throw new VoiceMethodNotDefinedException;
+        // Ensure the notification has the 'toVoice' method
+        if (!method_exists($notification, 'toVoice')) {
+            throw new VoiceMethodNotDefinedException('The toVoice method is not defined in the notification.');
         }
 
+        // Get the message from the notification
         $message = $notification->toVoice($notifiable);
 
-        $filename = md5($message).'.wav';
-        $path = 'audio/'.$filename;
+        // Generate a unique filename based on the message hash
+        $audioFilename = md5($message) . '.wav';
+        $audioDirectory = 'audio';
+        $storageRelativePath = $audioDirectory . '/' . $audioFilename; // Relative path in Laravel storage
+        $fullFilePath = storage_path('app/' . $storageRelativePath); // Absolute file path in filesystem
 
-        if (! Storage::exists('audio')) {
-            Storage::makeDirectory('audio');
+        // Ensure the storage directory for audio files exists
+        if (!Storage::exists($audioDirectory)) {
+            Storage::makeDirectory($audioDirectory);
         }
 
-        $fullPath = storage_path('app/'.$path);
+        // Generate the audio file only if it does not already exist
+        if (!file_exists($fullFilePath)) {
+            $command = sprintf(
+                'pico2wave -l it-IT -w %s "%s"',
+                escapeshellarg($fullFilePath),
+                addslashes($message)
+            );
 
-        if (! Storage::exists($path)) {
-
-            $generationProcess = new Process(['pico2wave', '-l', 'it-IT', '-w', $fullPath, $message]);
+            $generationProcess = Process::fromShellCommandline($command);
             $generationProcess->run();
 
-            if (! $generationProcess->isSuccessful()) {
+            // Ensure the command executed successfully
+            if (!$generationProcess->isSuccessful()) {
                 throw new ProcessFailedException($generationProcess);
             }
-            Log::info("Audio file generated for message \"$message\" at $fullPath");
+
+            Log::info("Audio file generated for message \"$message\" at $fullFilePath");
         }
 
-        if (! Storage::exists($path)) {
-            throw new VoiceFileNotCreatedException("Il file audio non è stato creato: $fullPath");
+        // Ensure the audio file was actually created
+        if (!file_exists($fullFilePath)) {
+            throw new VoiceFileNotCreatedException("The audio file was not created: $fullFilePath");
         }
 
-        $playProcess = new Process(['aplay', storage_path('app/'.$path)]);
+        // Play the audio file using 'aplay'
+        $playCommand = sprintf('aplay %s', escapeshellarg($fullFilePath));
+        $playProcess = Process::fromShellCommandline($playCommand);
         $playProcess->run();
 
-        if (! $playProcess->isSuccessful()) {
+        if (!$playProcess->isSuccessful()) {
             throw new ProcessFailedException($playProcess);
         }
 
