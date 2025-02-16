@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ArticleResource\Pages;
 
 use App\Filament\Resources\ArticleResource;
+use App\Models\Article;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
@@ -16,11 +17,11 @@ class EditArticle extends EditRecord
     {
         return [
 
-            Action::make('stampaEtichetta')
+            Action::make('printLabel')
                 ->label('Stampa Etichetta')
                 ->icon('heroicon-o-printer')
                 ->color('gray')
-                ->action(function ($record) {
+                ->action(function (Article $record) {
                     $record->printLabel();
                     Notification::make()
                         ->title('Richiesta di stampa inviata!')
@@ -29,8 +30,8 @@ class EditArticle extends EditRecord
                 }
                 )
                 ->requiresConfirmation()
-                ->modalHeading("Stampa etichetta articolo"),
-            DeleteAction::make()
+                ->modalHeading('Stampa etichetta articolo'),
+            DeleteAction::make(),
         ];
     }
 }

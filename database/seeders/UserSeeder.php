@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('e2p0s0o1n'),
         ]);
 
-        //$giancarlo->givePermissionTo(['access filament', 'access telescope']);
+        // $giancarlo->givePermissionTo(['access filament', 'access telescope']);
         $giancarlo->assignRole('Panel Admin');
     }
 }

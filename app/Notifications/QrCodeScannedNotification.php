@@ -2,11 +2,12 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Channels\VoiceChannel;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
-use Filament\Notifications\Notification as FilamentNotification;
 
 class QrCodeScannedNotification extends Notification implements ShouldQueue
 {
@@ -21,14 +22,14 @@ class QrCodeScannedNotification extends Notification implements ShouldQueue
 
     public function via($notifiable): array
     {
-        return ['database','broadcast'];
+        return ['database', 'broadcast',VoiceChannel::class];
     }
 
     public function toDatabase($notifiable): array
     {
         return FilamentNotification::make()
             ->title('QR Code Scansionato')
-            ->body("È stato scansionato un nuovo QR Code: {$this->qrCode}")
+            ->body("È stato scansionato un nuovo QR Code: $this->qrCode")
             ->success()
             ->icon('heroicon-o-qr-code')
             ->getDatabaseMessage();
@@ -38,7 +39,7 @@ class QrCodeScannedNotification extends Notification implements ShouldQueue
     {
         return FilamentNotification::make()
             ->title('QR Code Scansionato')
-            ->body("È stato scansionato un nuovo QR Code: {$this->qrCode}")
+            ->body("È stato scansionato un nuovo QR Code: $this->qrCode")
             ->icon('heroicon-o-qr-code')
             ->getBroadcastMessage();
     }
@@ -46,7 +47,12 @@ class QrCodeScannedNotification extends Notification implements ShouldQueue
     public function toArray($notifiable): array
     {
         return [
-            'message' => "QR Code scansionato: {$this->qrCode}",
+            'message' => "QR Code scansionato: $this->qrCode",
         ];
+    }
+
+    public function toVoice($notifiable): string
+    {
+        return "È stato scansionato un nuovo QR Code: $this->qrCode";
     }
 }

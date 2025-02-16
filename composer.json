@@ -25,7 +25,8 @@
         "livewire/volt": "^1.0",
         "mpdf/mpdf": "^8.2",
         "mpdf/qrcode": "^1.2",
-        "spatie/laravel-data": "^4.13"
+        "spatie/laravel-data": "^4.13",
+        "staudenmeir/laravel-adjacency-list": "^1.23"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",

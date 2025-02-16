@@ -11,11 +11,12 @@ use App\Services\QRCode\QRCodeGeneratorInterface;
 use Exception;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Support\Facades\Log;
+use Random\RandomException;
 
 /**
  * Class LabelPrinterService
  *
- * Handles the printing of container labels.
+ * Handles the printing of labels for articles and containers.
  */
 class LabelPrinterService
 {
@@ -24,76 +25,37 @@ class LabelPrinterService
         protected QRCodeGeneratorInterface $qrCodeGenerator,
     ) {}
 
-    // implement printArticleLabel
     /**
-     * Print an article label (no mode is provided) for the given article.
-     *
-     * @param  Article  $article  The article model.
-     * @return bool True on success, false on failure.
+     * Print an article label.
      */
     public function printArticleLabel(Article $article): bool
     {
-        try {
-            // Prepare layout data
-            $layoutData = [
-                'articleName' => $article->name,
-                'id' => $article->id,
-            ];
+        $layoutData = ['articleName' => $article->name, 'id' => $article->id];
 
+        return $this->processLabel(new ArticleLabelLayout, $layoutData, "article_$article->id");
+    }
+
+    /**
+     * Print a container label (load/unload).
+     */
+    public function printContainerLabel(ArticleContainer $container, string $mode): bool
+    {
+        $layoutData = ['containerName' => $container->name, 'mode' => $mode, 'id' => $container->id];
+
+        return $this->processLabel(new ContainerLoadLabelLayout, $layoutData, "container_$container->id");
+    }
+
+    /**
+     * Generates and processes the label.
+     */
+    protected function processLabel($layout, array $layoutData, string $filename): bool
+    {
+        try {
             $transport = $this->config->get('printers.label.transport', 'log');
             $printerName = $this->config->get('printers.label.name', 'Brother_Label_Printer');
+            $tempPdfPath = $this->generatePdf($layout, $layoutData, $filename, $transport);
 
-            // Crea il file PDF direttamente dal layout
-            if ($transport === 'log') {
-                $timestamp = date('Ymd_His');
-                $tempPdfPath = $_SERVER['HOME']."/Desktop/label_{$article->id}_{$timestamp}.pdf";
-            } else {
-                $tempPdfPath = tempnam(sys_get_temp_dir(), 'label_').'.pdf';
-            }
-            $layout = new ArticleLabelLayout;
-            $layout->generatePdf($layoutData, $tempPdfPath);
-
-            // Controlla il metodo di trasporto
-
-            switch ($transport) {
-                case 'log':
-                    // $tempPdfPath is the path to the desktop, so we can open it manually.
-
-                    Log::info('Label PDF generated at: '.realpath($tempPdfPath));
-                    $success = true;
-                    break;
-
-                case 'exec':
-                    // Use the lp command to print the PDF.
-                    $command = sprintf('lp -d %s %s', escapeshellarg($printerName), escapeshellarg($tempPdfPath));
-                    exec($command, $output, $result);
-                    $success = $result === 0;
-                    break;
-
-                case 'curl':
-                    // Use cURL to send the PDF file to CUPS.
-                    $cupsUrl = 'http://localhost:631/printers/'.urlencode($printerName);
-                    $fileContent = file_get_contents($tempPdfPath);
-
-                    $ch = curl_init($cupsUrl);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($ch, CURLOPT_POST, true);
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, $fileContent);
-                    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                        'Content-Type: application/octet-stream',
-                        'Content-Length: '.strlen($fileContent),
-                    ]);
-                    curl_exec($ch);
-                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                    curl_close($ch);
-                    $success = ($httpCode >= 200 && $httpCode < 300);
-                    break;
-
-                default:
-                    throw new LabelPrinterException('Invalid printer transport method configured');
-            }
-
-            return $success;
+            return $this->sendToPrinter($tempPdfPath, $transport, $printerName);
         } catch (Exception $e) {
             Log::error('Label print error: '.$e->getMessage());
 
@@ -101,82 +63,69 @@ class LabelPrinterService
         }
     }
 
+    /**
+     * Generates the PDF label.
+     * @throws RandomException
+     */
+    protected function generatePdf($layout, array $layoutData, string $filename, string $transport): string
+    {
+        $timestamp = date('Ymd_His');
+        $random = bin2hex(random_bytes(4));
+        $tempPdfPath = $transport === 'log'
+            ? $_SERVER['HOME']."/Desktop/label_{$filename}_{$timestamp}_$random.pdf"
+            : tempnam(sys_get_temp_dir(), 'label_').'.pdf';
+
+        $layout->generatePdf($layoutData, $tempPdfPath);
+
+        return $tempPdfPath;
+    }
 
     /**
-     * Print a container label (load/unload) for the given container.
-     *
-     * @param  ArticleContainer  $container  The container model.
-     * @param  string  $mode  The mode (e.g. 'load' or 'unload').
-     * @return bool True on success, false on failure.
+     * Sends the generated label to the printer based on the selected transport.
+     * @throws LabelPrinterException
      */
-    public function printContainerLabel(ArticleContainer $container, string $mode): bool
+    protected function sendToPrinter(string $filePath, string $transport, string $printerName): bool
     {
-        try {
-            // Prepare layout data
-            $layoutData = [
-                'containerName' => $container->name,
-                'mode' => $mode,
-                'id' => $container->id,
-            ];
+        switch ($transport) {
+            case 'log':
+                Log::info('Label PDF generated at: '.realpath($filePath));
 
-            $transport = $this->config->get('printers.label.transport', 'log');
-            $printerName = $this->config->get('printers.label.name', 'Brother_Label_Printer');
+                return true;
 
-            // Crea il file PDF direttamente dal layout
-            if ($transport === 'log') {
-                $timestamp = date('Ymd_His');
-                $tempPdfPath = $_SERVER['HOME']."/Desktop/label_{$container->id}_{$timestamp}.pdf";
-            } else {
-                $tempPdfPath = tempnam(sys_get_temp_dir(), 'label_').'.pdf';
-            }
-            $layout = new ContainerLoadLabelLayout;
-            $layout->generatePdf($layoutData, $tempPdfPath);
+            case 'exec':
+                $command = sprintf('lp -d %s %s', escapeshellarg($printerName), escapeshellarg($filePath));
+                exec($command, $output, $result);
 
-            // Controlla il metodo di trasporto
+                return $result === 0;
 
-            switch ($transport) {
-                case 'log':
-                    // $tempPdfPath is the path to the desktop, so we can open it manually.
+            case 'curl':
+                return $this->sendToCups($filePath, $printerName);
 
-                    Log::info('Label PDF generated at: '.realpath($tempPdfPath));
-                    $success = true;
-                    break;
-
-                case 'exec':
-                    // Use the lp command to print the PDF.
-                    $command = sprintf('lp -d %s %s', escapeshellarg($printerName), escapeshellarg($tempPdfPath));
-                    exec($command, $output, $result);
-                    $success = $result === 0;
-                    break;
-
-                case 'curl':
-                    // Use cURL to send the PDF file to CUPS.
-                    $cupsUrl = 'http://localhost:631/printers/'.urlencode($printerName);
-                    $fileContent = file_get_contents($tempPdfPath);
-
-                    $ch = curl_init($cupsUrl);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($ch, CURLOPT_POST, true);
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, $fileContent);
-                    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                        'Content-Type: application/octet-stream',
-                        'Content-Length: '.strlen($fileContent),
-                    ]);
-                    curl_exec($ch);
-                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                    curl_close($ch);
-                    $success = ($httpCode >= 200 && $httpCode < 300);
-                    break;
-
-                default:
-                    throw new LabelPrinterException('Invalid printer transport method configured');
-            }
-
-            return $success;
-        } catch (Exception $e) {
-            Log::error('Label print error: '.$e->getMessage());
-
-            return false;
+            default:
+                throw new LabelPrinterException('Invalid printer transport method configured');
         }
+    }
+
+    /**
+     * Sends the label to CUPS via cURL.
+     */
+    protected function sendToCups(string $filePath, string $printerName): bool
+    {
+        $cupsUrl = 'http://localhost:631/printers/'.urlencode($printerName);
+        $fileContent = file_get_contents($filePath);
+
+        $ch = curl_init($cupsUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fileContent);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/octet-stream',
+            'Content-Length: '.strlen($fileContent),
+        ]);
+        curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        return $httpCode >= 200 && $httpCode < 300;
     }
 }

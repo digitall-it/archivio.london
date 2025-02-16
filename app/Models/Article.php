@@ -24,10 +24,6 @@ class Article extends Model
 
     public function printLabel(): void
     {
-        // Qui puoi aggiungere la logica per stampare l'etichetta
-        //\Log::info("Stampa etichetta per l'articolo: " . $this->id);
-        // raise(new LabelPrintRequestedEvent with data ['type' => 'article', 'id' => $this->id, 'mode' => 'normal']);
-
         event(new LabelPrintRequestedEvent([
             'type' => 'article',
             'id' => $this->id,

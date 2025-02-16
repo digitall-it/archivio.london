@@ -3,9 +3,9 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
-//use App\Filament\Resources\UserResource\RelationManagers;
+// use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
-//use Filament\Forms;
+// use Filament\Forms;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
@@ -14,8 +14,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-//use Illuminate\Database\Eloquent\Builder;
-//use Illuminate\Database\Eloquent\SoftDeletingScope;
+// use Illuminate\Database\Eloquent\Builder;
+// use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
@@ -38,23 +38,23 @@ class UserResource extends Resource
                     TextInput::make('password')->password()
                         ->required(fn ($livewire) => $livewire instanceof Pages\CreateUser)
                         ->dehydrateStateUsing(static function ($state) use ($form) {
-                            if (!empty($state)) {
+                            if (! empty($state)) {
                                 return Hash::make($state);
                             }
 
                             return User::find($form->getColumns())?->password;
 
                         }),
-                        //->afterStateUpdated(fn ($state, callable $set) => $set('password_confirmation', $state)),
+                    // ->afterStateUpdated(fn ($state, callable $set) => $set('password_confirmation', $state)),
                     TextInput::make('password_confirmation')
                         ->password()
                         ->label('Conferma Password')
-                        ->required(fn ($state, $get) => !empty($get('password')))
+                        ->required(fn ($state, $get) => ! empty($get('password')))
                         ->dehydrated(false)
                         ->same('password'),
                 ]),
                 Section::make([
-                    //Select::make('roles')->multiple()->relationship('roles', 'name')->label('Ruoli'),
+                    // Select::make('roles')->multiple()->relationship('roles', 'name')->label('Ruoli'),
                     CheckboxList::make('roles')
                         ->label('Ruoli')
                         ->relationship('roles', 'name'),
@@ -86,12 +86,12 @@ class UserResource extends Resource
             ]);
     }
 
-//    public static function getRelations(): array
-//    {
-//        return [
-//            //
-//        ];
-//    }
+    //    public static function getRelations(): array
+    //    {
+    //        return [
+    //            //
+    //        ];
+    //    }
 
     public static function getPages(): array
     {
