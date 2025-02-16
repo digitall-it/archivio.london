@@ -17,11 +17,11 @@ return [
     'broadcasting' => [
 
         'echo' => [
-            'broadcaster' => 'reverb',
-            'key' => env('VITE_REVERB_APP_KEY'), // ✅ CHIAVE CORRETTA
-            'wsHost' => env('VITE_REVERB_HOST'), // ✅ HOST CORRETTO
-            'wsPort' => env('VITE_REVERB_PORT'), // ✅ PORTA CORRETTA
-            'wssPort' => env('VITE_REVERB_PORT'), // ✅ PORTA CORRETTA
+            'broadcaster' => 'pusher',
+            'key' => env('VITE_REVERB_APP_KEY'),
+            'wsHost' => env('VITE_REVERB_HOST'),
+            'wsPort' => env('VITE_REVERB_PORT'),
+            'wssPort' => env('VITE_REVERB_PORT'),
             'authEndpoint' => '/broadcasting/auth',
             'disableStats' => true,
             'encrypted' => env('VITE_REVERB_SCHEME', 'http') === 'https',

@@ -22,18 +22,18 @@ class QrCodeScannedNotification extends Notification implements ShouldQueue
 
     public function via($notifiable): array
     {
-        return ['database', 'broadcast', VoiceChannel::class];
+        return ['broadcast', VoiceChannel::class];
     }
 
-    public function toDatabase($notifiable): array
-    {
-        return FilamentNotification::make()
-            ->title('QR Code Scansionato')
-            ->body("È stato scansionato un nuovo QR Code: $this->qrCode")
-            ->success()
-            ->icon('heroicon-o-qr-code')
-            ->getDatabaseMessage();
-    }
+//    public function toDatabase($notifiable): array
+//    {
+//        return FilamentNotification::make()
+//            ->title('QR Code Scansionato')
+//            ->body("È stato scansionato un nuovo QR Code: $this->qrCode")
+//            ->success()
+//            ->icon('heroicon-o-qr-code')
+//            ->getDatabaseMessage();
+//    }
 
     public function toBroadcast($notifiable): BroadcastMessage
     {
