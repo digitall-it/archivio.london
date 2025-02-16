@@ -8,3 +8,4 @@ use Illuminate\Support\Facades\Artisan;
 // })->purpose('Display an inspiring quote');
 
 Schedule::command('telescope:prune --hours=72')->daily();
+Schedule::command('audio:clean')->daily();

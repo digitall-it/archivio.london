@@ -4,6 +4,7 @@ namespace App\Notifications\Channels;
 
 use App\Exceptions\VoiceMethodNotDefinedException;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
@@ -27,20 +28,23 @@ class VoiceChannel
         $message = $notification->toVoice($notifiable);
 
         // Generate a temporary filename
-        $filename = tempnam(sys_get_temp_dir(), 'voice_') . '.wav';
+        $filename = md5($message) . '.wav';
+        $path = 'audio/' . $filename;
 
-        // Command to generate the audio file
-        $process = new Process(['pico2wave', '-l', 'it-IT', '-w', $filename, $message]);
-        $process->run();
+        if (!Storage::exists($path)) {
+            // Command to generate the audio file
+            $generationProcess = new Process(['pico2wave', '-l', 'it-IT', '-w', $filename, $message]);
+            $generationProcess->run();
 
-        // Check if the command was successful
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+            // Check if the command was successful
+            if (!$generationProcess->isSuccessful()) {
+                throw new ProcessFailedException($generationProcess);
+            }
 
-        // Check if the audio file was generated
-        if (!file_exists($filename)) {
-            throw new ProcessFailedException($process);
+            // Check if the audio file was generated
+            if (!file_exists($filename)) {
+                throw new ProcessFailedException($generationProcess);
+            }
         }
 
         // Command to play the audio file
@@ -48,11 +52,8 @@ class VoiceChannel
         $playProcess->run();
 
         // Check if the command was successful
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
+        if (!$playProcess->isSuccessful()) {
+            throw new ProcessFailedException($playProcess);
         }
-
-        // Remove the temporary audio file
-        unlink($filename);
     }
 }
