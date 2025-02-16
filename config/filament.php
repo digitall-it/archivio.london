@@ -17,7 +17,7 @@ return [
     'broadcasting' => [
 
         'echo' => [
-            'broadcaster' => 'pusher',
+            'broadcaster' => 'reverb',
             'key' => env('VITE_REVERB_APP_KEY'),
             'wsHost' => env('VITE_REVERB_HOST'),
             'wsPort' => env('VITE_REVERB_PORT'),
@@ -26,8 +26,8 @@ return [
             'disableStats' => true,
             'encrypted' => env('VITE_REVERB_SCHEME', 'http') === 'https',
             'forceTLS' => env('VITE_REVERB_SCHEME', 'http') === 'https',
+            'cluster' => env('VITE_REVERB_APP_CLUSTER'),
         ],
-
     ],
 
     /*
