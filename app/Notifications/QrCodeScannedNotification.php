@@ -53,6 +53,6 @@ class QrCodeScannedNotification extends Notification implements ShouldQueue
 
     public function toVoice($notifiable): string
     {
-        return "È stato scansionato un nuovo QR Code: $this->qrCode";
+        return "Scansionato un nuovo codice QR";
     }
 }

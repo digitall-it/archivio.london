@@ -10,7 +10,7 @@ use Symfony\Component\Process\Process;
 class VoiceChannel
 {
     /**
-     * Invia la notifica.
+     * Send the notification.
      *
      * @param mixed $notifiable
      * @param Notification $notification
@@ -23,26 +23,36 @@ class VoiceChannel
             throw new VoiceMethodNotDefinedException();
         }
 
-        // Ottieni il messaggio dalla notifica
+        // Get the message from the notification
         $message = $notification->toVoice($notifiable);
 
-        // Genera un nome di file temporaneo
+        // Generate a temporary filename
         $filename = tempnam(sys_get_temp_dir(), 'voice_') . '.wav';
 
-        // Comando per generare il file audio
+        // Command to generate the audio file
         $process = new Process(['pico2wave', '-l', 'it-IT', '-w', $filename, $message]);
         $process->run();
 
-        // Verifica se il comando ha avuto successo
+        // Check if the command was successful
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
 
-        // Comando per riprodurre il file audio
+        // Check if the audio file was generated
+        if (!file_exists($filename)) {
+            throw new ProcessFailedException($process);
+        }
+
+        // Command to play the audio file
         $playProcess = new Process(['aplay', $filename]);
         $playProcess->run();
 
-        // Rimuovi il file audio temporaneo
+        // Check if the command was successful
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        // Remove the temporary audio file
         unlink($filename);
     }
 }
