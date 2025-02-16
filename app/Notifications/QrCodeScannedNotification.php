@@ -22,7 +22,7 @@ class QrCodeScannedNotification extends Notification implements ShouldQueue
 
     public function via($notifiable): array
     {
-        return ['database', 'broadcast', VoiceChannel::class];
+        return ['database', VoiceChannel::class];
     }
 
     public function toDatabase($notifiable): array
