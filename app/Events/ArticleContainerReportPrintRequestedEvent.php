@@ -9,7 +9,5 @@ class ArticleContainerReportPrintRequestedEvent
 {
     use Dispatchable, SerializesModels;
 
-    public function __construct(public bool $includeChildren, public int $articleContainerId)
-    {
-    }
+    public function __construct(public bool $includeChildren, public int $articleContainerId) {}
 }

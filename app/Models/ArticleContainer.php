@@ -11,7 +11,7 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
 
 class ArticleContainer extends Model
 {
-    use HasTags, HasRecursiveRelationships;
+    use HasRecursiveRelationships, HasTags;
 
     protected $fillable = ['name', 'parent_id'];
 
@@ -38,5 +38,4 @@ class ArticleContainer extends Model
             ]));
         }
     }
-
 }

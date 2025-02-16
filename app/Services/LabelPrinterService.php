@@ -65,6 +65,7 @@ class LabelPrinterService
 
     /**
      * Generates the PDF label.
+     *
      * @throws RandomException
      */
     protected function generatePdf($layout, array $layoutData, string $filename, string $transport): string
@@ -82,6 +83,7 @@ class LabelPrinterService
 
     /**
      * Sends the generated label to the printer based on the selected transport.
+     *
      * @throws LabelPrinterException
      */
     protected function sendToPrinter(string $filePath, string $transport, string $printerName): bool

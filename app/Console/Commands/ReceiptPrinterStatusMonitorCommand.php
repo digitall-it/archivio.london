@@ -21,9 +21,13 @@ class ReceiptPrinterStatusMonitorCommand extends Command
     protected $description = 'Monitors the receipt printer status in real-time.';
 
     protected string $printerIp;
+
     protected int $printerPort = 9100;
+
     protected int $ttl = 86400; // Auto-termination after 24 hours
+
     protected int $pollingInterval = 5; // Polling every 5 seconds
+
     protected bool $terminationRequested = false;
 
     protected array $currentStatus = [
